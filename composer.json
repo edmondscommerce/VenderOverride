@@ -1,5 +1,5 @@
 {
-    "name": "edmondscommerce/vendor-overrides",
+    "name": "edmondscommerce/vendor-override",
     "description": "Applies hot fixes to vendor composer packages for when forking is not possible like in Magento 2",
     "keywords": [
         "Magento",
