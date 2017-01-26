@@ -1,0 +1,27 @@
+{
+    "name": "edmondscommerce/vendor-overrides",
+    "description": "Applies hot fixes to vendor composer packages for when forking is not possible like in Magento 2",
+    "keywords": [
+        "Magento",
+        "Magento 2",
+        "Bugs",
+        "Issues",
+        "Hot Fixes",
+        "Patch",
+        "Fixes"
+    ],
+    "homepage": "https://www.edmondscommerce.co.uk",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "edmondscommerce",
+            "email": "info@edmondscommerce.co.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "EdmondsCommerce\\VendorOverride\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
