@@ -1,88 +1,26 @@
-<?php namespace EdmondsCommerce\M2HotFixes\Override;
+<?php namespace EdmondsCommerce\VendorOverride\Override;
+
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
 
 class OverrideCollectionFactory
 {
 
-    public function make($overridePath)
+    public function make($overridePath, $vendorPath)
     {
-        $dirIter = new \DirectoryIterator($overridePath);
-        $files = $this->searchDir($dirIter);
-        $files = $this->collapseDirArray($files);
-        $this->filterFiles($files);
-    }
+        $fs = new Filesystem(new Local($overridePath));
+        $files = $fs->listContents($overridePath, true);
+        $files = array_values(array_filter($files, function($file) {
+            return ($file['type'] == 'file' && $file['extension'] != 'md5');
+        }));
 
-
-    /**
-     * Prepare file lists
-     */
-    protected function filterFiles($files)
-    {
-        $md5Files = [];
-        $overrideFiles = [];
-
-        foreach($files as $path)
+        $resultFiles = [];
+        foreach($files as $file)
         {
-            if(preg_match('/(.+)\.md5$/', $path) === 1)
-            {
-                $md5Files[] = $path;
-            }
-            else
-            {
-                $overrideFiles[] = $path;
-            }
+            $resultFiles[] = new Override($file['path'], $file['path'].'.md5', $vendorPath.'/'.$file['path']);
         }
 
-        //Group in to override objects
-        $result = [];
-        foreach($overrideFiles as $overrideFile)
-        {
-            foreach($md5Files as $md5File)
-            {
-                if(strpos($md5File, $overrideFile) !== false)
-                {
-                    $result[] = new Override()
-                }
-            }
-        }
+        return new OverrideCollection($resultFiles);
     }
 
-    protected function collapseDirArray(array $tree, $prefix = '')
-    {
-        $result = [];
-        foreach ($tree as $key => $value)
-        {
-            if (is_array($value))
-            {
-                $result = $result + $this->collapseDirArray($value,   $prefix.'/'.$key);
-            }
-            else
-            {
-                $result[] =  preg_replace('/^overrides\//', '' ,trim($prefix.'/'. $value, '/'));
-            }
-        }
-
-        return $result;
-    }
-
-    protected function searchDir(\DirectoryIterator $directoryIterator)
-    {
-        $files = [];
-        foreach ($directoryIterator as $node)
-        {
-            if ($node->isDir() && !$node->isDot())
-            {
-                $files[basename($node->getPath())] = $this->searchDir(new \DirectoryIterator($node->getPathname()));
-                continue;
-            }
-
-            if ($node->isDot())
-            {
-                continue;
-            }
-
-            $files[basename($node->getPath())][] = $node->getFilename();
-        }
-
-        return $files;
-    }
 }

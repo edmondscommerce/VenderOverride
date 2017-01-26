@@ -1,4 +1,4 @@
-<?php namespace EdmondsCommerce\M2HotFixes\Override;
+<?php namespace EdmondsCommerce\VendorOverride\Override;
 
 use function Magento\Framework\Filesystem\Driver\file_get_contents;
 
@@ -16,25 +16,20 @@ class Override
      */
     private $md5Path;
 
+    private $vendorPath;
+
     /**
      * Override constructor.
      *
      * @param $overridePath
-     * @param $filePath
+     * @param $md5Path
+     * @param $vendorPath
      */
-    public function __construct($overridePath, $md5Path)
+    public function __construct($overridePath, $md5Path, $vendorPath)
     {
         $this->overridePath = $overridePath;
         $this->md5Path = $md5Path;
-    }
-
-    /**
-     * Get the MD5 for the override file
-     */
-    public function getOverrideMd5()
-    {
-        $file = file_get_contents($this->overridePath);
-        return md5($file);
+        $this->vendorPath = $vendorPath;
     }
 
     /**
@@ -45,21 +40,4 @@ class Override
 
     }
 
-    /**
-     * Read the .md5 file for the file we want to rewrite
-     * This is the state of the file before rewrites
-     */
-    public function getFileOriginalMd5()
-    {
-        return file_get_contents($this->md5Path);
-    }
-
-    /**
-     * Read the MD5 from the target file
-     */
-    public function getFileMd5()
-    {
-        $file = file_get_contents($this->md5Path);
-        return md5($file);
-    }
 }

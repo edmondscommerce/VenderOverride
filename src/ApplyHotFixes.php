@@ -1,8 +1,12 @@
-<?php namespace EdmondsCommerce\M2HotFixes;
+<?php namespace EdmondsCommerce\VendorOverride;
+
+use EdmondsCommerce\VendorOverride\Override\OverrideCollectionFactory;
+use EdmondsCommerce\VendorOverride\Validation\FileValidator;
+use EdmondsCommerce\VendorOverride\Validation\VersionValidator;
 
 /**
  * Class ApplyHotFixes
- * @package EdmondsCommerce\M2HotFixes
+ * @package EdmondsCommerce\VendorOverride
  * Apply all hot fixes in this modules vendor directory to the canonical Composer vendor directory
  * Retain original files and apply a suffic of ".orig" for backup purposes
  * Should notify user of static-content:deploy / di:compile / cache:flush requirement following update
@@ -21,23 +25,15 @@ class ApplyHotFixes
         self::$overridePath = dirname(__DIR__, 1).'/overrides/';
         self::$vendorPath = dirname(__DIR__, 3);
 
-        //Sanity check version
-        $versionCheck = new VersionCheck();
-        $versionCheck->check();
+        $versionValidator = new VersionValidator();
+        $fileValidator = new FileValidator(self::$overridePath, self::$vendorPath);
 
         //Build the list of files
+        $factory = new OverrideCollectionFactory();
+        $overrides = $factory->make(self::$overridePath, self::$vendorPath);
 
 
-        $md5Check = new MD5Check(self::$overridePath, self::$vendorPath);
-        if(!$md5Check->check())
-        {
-            echo "MD5 check failed, aborting\n";
-            return 1;
-        }
-
-        //Copy the files
-        $files = $md5Check->getOverrideCollection()->getOverrideFiles();
-
+        /*
         $copyCheck = true;
         foreach($files as $file)
         {
@@ -59,7 +55,7 @@ class ApplyHotFixes
             }
         }
 
-        return $copyCheck;
+        return $copyCheck;*/
     }
 }
 

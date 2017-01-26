@@ -1,32 +1,55 @@
-<?php namespace EdmondsCommerce\M2HotFixes;
+<?php namespace EdmondsCommerce\VendorOverride\Validation;
+
+use EdmondsCommerce\VendorOverride\Override\OverrideCollection;
+use EdmondsCommerce\VendorOverride\Override\OverrideCollectionFactory;
+use EdmondsCommerce\VendorOverride\Validation\File\MD5;
 
 /**
- * Class MD5Check
- * @package EdmondsCommerce\M2HotFixes
- * Checks that MD5 files match the destination of the overrides
+ * Class FileValidator
+ * @package EdmondsCommerce\VendorOverride
+ * Performs a series of checks on override files and
  */
-class MD5Check
+class FileValidator
 {
+    /**
+     * @var string
+     */
     private $overridePath;
+
+    /**
+     * @var string
+     */
     private $vendorPath;
+
     /**
      * @var OverrideCollection
      */
     private $overrideCollection;
 
+    /**
+     * @var MD5
+     */
+    private $md5Check;
+
     public function __construct($overridePath, $vendorPath)
     {
         $this->overridePath = $overridePath;
         $this->vendorPath = $vendorPath;
-        $this->overrideCollection = new OverrideCollection($overridePath);
+
+        $factory = new OverrideCollectionFactory();
+        $this->overrideCollection = $factory->make($overridePath, $this->vendorPath);
+
+        $this->md5Check = new MD5();
     }
 
     public function check()
     {
         $files = [];
         $noFailures = true;
-        foreach ($this->overrideCollection->getOverrideFiles() as $overrideFile)
+        foreach ($this->overrideCollection->getFiles() as $overrideFile)
         {
+            //Check existence
+//            $this->md5Check->compareFileToMD5($overrideFile->getTargetPath())
             $overridePath = $this->overridePath . $overrideFile;
             $md5FilePath = $overridePath . '.md5';
             $filePath = $this->vendorPath . '/' . $overrideFile;
@@ -46,7 +69,7 @@ class MD5Check
             {
                 //MD5 failed, check that this does not match the rewrite we have already
                 $overrideMd5 = md5(file_get_contents($overridePath));
-                if($fileMd5 != $overrideMd5)
+                if ($fileMd5 != $overrideMd5)
                 {
                     $noFailures = false;
                     echo "MD5 check failed for " . $filePath . "\n";

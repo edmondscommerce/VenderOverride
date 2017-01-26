@@ -1,8 +1,6 @@
-<?php namespace EdmondsCommerce\M2HotFixes;
+<?php namespace EdmondsCommerce\VendorOverride\Validation;
 
-use Composer\Composer;
-
-class VersionCheck
+class VersionValidator
 {
     private $composerJsonPath;
 
